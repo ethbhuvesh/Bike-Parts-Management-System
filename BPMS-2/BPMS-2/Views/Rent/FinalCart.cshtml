@@ -1,0 +1,52 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+
+    <!--display the cart-->
+    <html>
+    <head>
+            <meta name="viewport" content="width=device-width" />
+            <title>Your Cart</title>
+    </head>
+    <body>
+
+            <h3>Cart Page</h3>
+            <table cellpadding="2" cellspacing="2" border="1">
+                <tr>
+                    <th>Product ID</th>
+                    <th>Product Price</th>
+                    <th>Quantity</th>
+                    <th>Total Price</th>
+                   
+                </tr>
+               
+                @foreach (var item in ViewBag.rentcart)
+                {
+                    <tr>
+                    <form method="post" asp-action="Remove" asp-controller="Cart" asp-route-ProductId="@item.ProductId">
+                    <input type="submit" value="Remove from cart">
+                    </form>    
+                    <td>@item.ProductId</td>
+                        
+                        <td>@item.ProductPrice</td> 
+                        <td>@item.Quantity</td>
+                       <td>@item.TotalPrice</td>
+                    </tr>
+                   
+                }
+                <tr>
+                Total is @ViewBag.total
+                </tr>
+
+                
+            </table>
+            <br>
+          
+
+    </body>
+    </html>
+}
+
+<a asp-action="Index" asp-controller="Rent">Keep Shopping</a>
+<a asp-action="Checkout" asp-controller="Rent">Checkout</a>

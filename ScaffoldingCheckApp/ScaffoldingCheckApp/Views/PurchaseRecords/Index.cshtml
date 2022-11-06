@@ -1,0 +1,65 @@
+﻿@model IEnumerable<ScaffoldingCheckApp.Models.PurchaseRecord>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.PurchaseType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RentDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DueDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BikeReturnDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductPurchased)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalAmount)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.PurchaseType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RentDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DueDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BikeReturnDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProductPurchased)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalAmount)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.UID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.UID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.UID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

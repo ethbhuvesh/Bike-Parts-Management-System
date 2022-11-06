@@ -23,6 +23,25 @@ namespace Bikes_and_Parts_Management_System.Controllers
             return View();
         }
 
+        public IActionResult AddUsers()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult AddUsers(Users user)
+        {
+            using (var db = new DatabaseContext())
+            {
+                user.UserRole = "patron";
+                db.Add(user);
+                //db.SaveChanges();
+            }
+            
+            return View();
+        }
+
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
