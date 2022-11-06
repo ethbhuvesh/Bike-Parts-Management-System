@@ -1,6 +1,7 @@
 ﻿using BPMS_2.Data;
 using BPMS_2.Models;
 using LearnASPNETCoreMVCWithRealApps.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,14 @@ namespace BPMS_2.Controllers
         {
             return View(await _context.ProductsModel.ToListAsync());
         }
+
+
+        public IActionResult Failure()
+        {
+            return View();
+        }
+
+        [Authorize]
         public IActionResult FinalCart()
         {
             var cart = SessionHelper.GetObjectFromJson<List<OrderDetailsModel>>(HttpContext.Session, "cart");
@@ -26,7 +35,7 @@ namespace BPMS_2.Controllers
             ViewBag.total = cart.Sum(item => item.TotalPrice);
             //ViewBag.total = cart.Sum(item => item.Product.Price * item.Quantity);
             return View();
-        }
+        }   
 
         public ProductsModel GetProductById(Guid productId)
         {
@@ -34,7 +43,7 @@ namespace BPMS_2.Controllers
         }
 
 
-
+        [Authorize]
         [HttpPost("{productId}")]
         public async Task<IActionResult> AddOrder(Guid productId, int quantity)
         {
@@ -55,7 +64,12 @@ namespace BPMS_2.Controllers
                     
                     await _context.SaveChangesAsync();
                     SessionHelper.SetObjectAsJson(HttpContext.Session, "cart", cart);
+                    return RedirectToAction("FinalCart");
 
+                }
+                else
+                {
+                    return View("Failure");
                 }
                 
             }
@@ -90,15 +104,17 @@ namespace BPMS_2.Controllers
                 }
 
                 SessionHelper.SetObjectAsJson(HttpContext.Session, "cart", cart);
+                return RedirectToAction("FinalCart");
             }
 
-            return RedirectToAction("FinalCart");
+            
         }
 
 
         
 
         [HttpPost]
+        [Authorize]
         public IActionResult Remove(Guid productId)
         {
             List<OrderDetailsModel> cart = SessionHelper.GetObjectFromJson<List<OrderDetailsModel>>(HttpContext.Session, "cart");

@@ -1,6 +1,7 @@
 ﻿using BPMS_2.Data;
 using BPMS_2.Models;
 using LearnASPNETCoreMVCWithRealApps.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,12 +20,17 @@ namespace BPMS_2.Controllers
             _context = context;
         }
 
+        public IActionResult Failure()
+        {
+            return View();
+        }
+
         public RentBikesModel GetProductById(Guid productId)
         {
             return _context.RentBikesModel.SingleOrDefault(p => p.ProductId == productId);
         }
 
-
+        [Authorize]
         public IActionResult FinalCart()
         {
             var rentcart = SessionHelper.GetObjectFromJson<List<OrderDetailsModel>>(HttpContext.Session, "rentcart");
@@ -37,6 +43,7 @@ namespace BPMS_2.Controllers
 
 
         //[HttpPost("{productId}")]
+        [Authorize]
         public async Task<IActionResult> RentProduct(Guid productId, int quantity = 1)
         {
             var product = GetProductById(productId);
@@ -55,7 +62,11 @@ namespace BPMS_2.Controllers
 
                     await _context.SaveChangesAsync();
                     SessionHelper.SetObjectAsJson(HttpContext.Session, "rentcart", rentcart);
-
+                    return RedirectToAction("FinalCart");
+                }
+                else
+                {
+                    return View("Failure");
                 }
             }
 
@@ -89,14 +100,15 @@ namespace BPMS_2.Controllers
                 }
 
                 SessionHelper.SetObjectAsJson(HttpContext.Session, "cart", cart);
+                return RedirectToAction("FinalCart");
             }
-            return RedirectToAction("FinalCart");
+            
         }
 
 
 
 
-
+        [Authorize]
         public async Task<IActionResult> Checkout()
         {
 
@@ -121,9 +133,15 @@ namespace BPMS_2.Controllers
 
         }
 
+        [Authorize]
+        public IActionResult Success()
+        {
+            return View();
+        }
 
 
         [HttpPost]
+        [Authorize]
         public IActionResult Remove(Guid productId)
         {
             List<OrderDetailsModel> rentcart = SessionHelper.GetObjectFromJson<List<OrderDetailsModel>>(HttpContext.Session, "rentcart");

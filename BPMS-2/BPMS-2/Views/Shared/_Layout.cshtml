@@ -25,6 +25,33 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Rent" asp-action="Index">Rent Bikes</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Cart" asp-action="Index">Buy Parts and Bikes</a>
+                        </li>
+
+                        @if(User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Manage Products</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="RentBikesModels" asp-action="Index">Manage Rental Bikes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Sales" asp-action="Index">Sales</a>
+                        </li>
+  
+                        }
+                        
+
+                        </div>
+                        <partial name="_LoginPartial" />
+                        </div>
                     </ul>
                 </div>
             </div>
@@ -35,6 +62,7 @@
             @RenderBody()
         </main>
     </div>
+
 
     <footer class="border-top footer text-muted">
         <div class="container">
