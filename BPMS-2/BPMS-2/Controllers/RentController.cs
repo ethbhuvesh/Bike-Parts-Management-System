@@ -2,6 +2,7 @@
 using BPMS_2.Models;
 using LearnASPNETCoreMVCWithRealApps.Helpers;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,15 +10,24 @@ namespace BPMS_2.Controllers
 {
     public class RentController : Controller
     {
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly BPMS_2Context _context;
+        public RentController(BPMS_2Context context, UserManager<IdentityUser> userManager)
+        {
+            _context = context;
+            _userManager = userManager;
+        }
+
+
         public async Task<IActionResult> Index()
         {
             return View(await _context.RentBikesModel.ToListAsync());
         }
-
-        private readonly BPMS_2Context _context;
-        public RentController(BPMS_2Context context)
+        private Task<IdentityUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
+        public async Task<string> GetCurrentUserId()
         {
-            _context = context;
+            IdentityUser usr = await GetCurrentUserAsync();
+            return usr?.UserName;
         }
 
         public IActionResult Failure()
@@ -74,13 +84,14 @@ namespace BPMS_2.Controllers
             {
                 List<OrderDetailsModel> cart = SessionHelper.GetObjectFromJson<List<OrderDetailsModel>>(HttpContext.Session, "rentcart");
                 int index = isExist(productId);
+
                 if (index != -1 && product.InventoryCount > quantity)
                 {
                     cart[index].Quantity += quantity;
                     product.InventoryCount -= quantity;
-
                     await _context.SaveChangesAsync();
                 }
+                
                 else
                 {
                     if (product.InventoryCount > quantity)
@@ -120,7 +131,7 @@ namespace BPMS_2.Controllers
             {
                 var rentcart = SessionHelper.GetObjectFromJson<List<OrderDetailsModel>>(HttpContext.Session, "rentcart");
                 CartModel finalcart = new CartModel();
-                finalcart.UID = "test_id";
+                finalcart.UID = await GetCurrentUserId();
                 finalcart.OrderId = Guid.NewGuid();
                 finalcart.OrderDate = DateTime.UtcNow;
                 finalcart.SubTotal = rentcart.Sum(item => item.TotalPrice);

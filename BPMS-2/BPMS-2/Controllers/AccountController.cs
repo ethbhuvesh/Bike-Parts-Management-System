@@ -1,4 +1,5 @@
-﻿using BPMS_2.ViewModels;
+﻿using BPMS_2.Utils;
+using BPMS_2.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,18 +37,45 @@ namespace BPMS_2.Controllers
                 {
                     UserName = model.Username,
                     Email = model.Email
-                    
+
                 };
 
                 // Store user data in AspNetUsers database table
                 var result = await userManager.CreateAsync(user, model.Password);
 
-                // If user is successfully created, sign-in the user using
-                // SignInManager and redirect to index action of HomeController
+
                 if (result.Succeeded)
                 {
-                    await signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
+
+
+
+                    var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var confirmationLink = Url.Action("ConfirmEmail", "Email", new { token, email = user.Email }, Request.Scheme);
+                    EmailSender emailSender = new EmailSender();
+                    bool emailResponse = emailSender.SendEmail(user.Email, confirmationLink);
+
+                    if (emailResponse)
+                    {
+                        //_customerRepository.CreateCustomer(model.CompanyName, model.Username, model.Address, model.City, model.Region, model.PostalCode, model.Country);
+
+                        //await _signInManager.SignInAsync(user, isPersistent: false);
+                        return View("ConfirmRequired");
+                    }
+
+                    bool emailStatus = await userManager.IsEmailConfirmedAsync(user);
+
+                    if (emailStatus)
+                    {
+                        await signInManager.SignInAsync(user, isPersistent: false);
+                        return RedirectToAction("Index", "Home");
+
+                    }
+                    else
+                    {
+                        return View("ConfirmRequired");
+                    }
+
+
                 }
 
                 // If there are any errors, add them to the ModelState object
@@ -60,8 +88,17 @@ namespace BPMS_2.Controllers
 
             return View(model);
 
-
         }
+
+
+
+        public IActionResult ConfirmRequired()
+        {
+            return View();
+        }
+
+
+        
 
         [HttpPost]
         public async Task<IActionResult> Logout()

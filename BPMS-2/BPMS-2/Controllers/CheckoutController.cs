@@ -23,7 +23,6 @@ namespace BPMS_2.Controllers
 
         }
 
-      
 
         [Authorize]
         public IActionResult Index()
