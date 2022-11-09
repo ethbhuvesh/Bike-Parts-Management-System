@@ -12,6 +12,11 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.Sign
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
+builder.Services.Configure<PasswordHasherOptions>(option =>
+{
+    option.IterationCount = 100000;
+});
+
 var app = builder.Build();
 
 
