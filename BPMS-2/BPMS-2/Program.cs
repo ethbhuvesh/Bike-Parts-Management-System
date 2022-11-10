@@ -2,13 +2,15 @@
 using Microsoft.Extensions.DependencyInjection;
 using BPMS_2.Data;
 using Microsoft.AspNetCore.Identity;
+using BPMS_2.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<BPMS_2Context>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BPMS_2Context") ?? throw new InvalidOperationException("Connection string 'BPMS_2Context' not found.")));
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
         .AddEntityFrameworkStores<BPMS_2Context>()
-        .AddDefaultTokenProviders();
+        .AddDefaultTokenProviders()
+        .AddPasswordValidator<CustomPasswordValidator<IdentityUser>>();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
