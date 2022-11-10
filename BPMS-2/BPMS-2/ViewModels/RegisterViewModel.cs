@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BPMS_2.Utils;
+using System.ComponentModel.DataAnnotations;
 
 namespace BPMS_2.ViewModels
 {
@@ -9,6 +10,8 @@ namespace BPMS_2.ViewModels
 
         [Required]
         [EmailAddress]
+        [Display(Name = "Email")]
+        [ValidEmailDomain(allowedDomain: "umd.edu", ErrorMessage = "Only UMD students are allowed. Use your umd.edu account")]
         public string Email { get; set; }
 
         [Required]
