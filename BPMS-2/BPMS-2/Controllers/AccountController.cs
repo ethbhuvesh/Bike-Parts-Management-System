@@ -33,7 +33,7 @@ namespace BPMS_2.Controllers
             if (ModelState.IsValid)
             {
                 // Copy data from RegisterViewModel to IdentityUser
-                var user = new IdentityUser
+                var user = new IdentityUser(model.Username)
                 {
                     UserName = model.Username,
                     Email = model.Email
@@ -46,44 +46,45 @@ namespace BPMS_2.Controllers
 
                 if (result.Succeeded)
                 {
-
-
-
                     var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
                     var confirmationLink = Url.Action("ConfirmEmail", "Email", new { token, email = user.Email }, Request.Scheme);
                     EmailSender emailSender = new EmailSender();
-                    bool emailResponse = emailSender.SendEmail(user.Email, confirmationLink);
+                    bool emailResponse = emailSender.SendEmail(model.Email, confirmationLink);
 
                     if (emailResponse)
                     {
                         //_customerRepository.CreateCustomer(model.CompanyName, model.Username, model.Address, model.City, model.Region, model.PostalCode, model.Country);
 
                         //await _signInManager.SignInAsync(user, isPersistent: false);
-                        return View("ConfirmRequired");
-                    }
-
-                    bool emailStatus = await userManager.IsEmailConfirmedAsync(user);
-
-                    if (emailStatus)
-                    {
-                        await signInManager.SignInAsync(user, isPersistent: false);
                         return RedirectToAction("Index", "Home");
-
                     }
                     else
                     {
-                        return View("ConfirmRequired");
+                        System.Diagnostics.Debug.WriteLine("Email Failed");
                     }
-
-
                 }
 
-                // If there are any errors, add them to the ModelState object
-                // which will be displayed by the validation summary tag helper
+                bool emailStatus = await userManager.IsEmailConfirmedAsync(user);
+
+                if (emailStatus)
+                {
+                    await signInManager.SignInAsync(user, isPersistent: false);
+                    //return RedirectToAction("Index", "Home");
+
+                }
+                else
+                {
+                    return View("ConfirmRequired");
+                }
+                 //await signInManager.SignInAsync(user, isPersistent: false);
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
+
+                // If there are any errors, add them to the ModelState object
+                // which will be displayed by the validation summary tag helper
+
             }
 
             return View(model);
@@ -98,7 +99,7 @@ namespace BPMS_2.Controllers
         }
 
 
-        
+
 
         [HttpPost]
         public async Task<IActionResult> Logout()
@@ -115,26 +116,32 @@ namespace BPMS_2.Controllers
         }
 
 
-        
+
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var result = await signInManager.PasswordSignInAsync(
-                    model.Email, model.Password, model.RememberMe, false);
 
+                var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                
                 if (result.Succeeded)
+
                 {
                     return RedirectToAction("Index", "Home");
                 }
+
+
 
                 ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
             }
 
             return View(model);
         }
-        
+    }
+}
+            
+
 
         /*
         [HttpPost]
@@ -165,5 +172,3 @@ namespace BPMS_2.Controllers
 
         }*/
 
-    }
-}   

@@ -1,11 +1,43 @@
-﻿using System;
+﻿
+using System;
 using System.Net.Mail;
 
-namespace BPMS_2.Utils
+namespace BPMS_2
 {
     public class EmailSender
     {
-       
+        public static void Send(string to, string subject, string messageBody)
+        {
+            var message = new MailMessage("WebAppSecurityClass@gmail.com", to)
+            {
+                Subject = subject,
+                IsBodyHtml = true,
+                Body = messageBody,
+            };
+            var client = new SmtpClient() { EnableSsl = true };
+            try
+            {
+                client.Send(message);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public static void Send(MailMessage message)
+        {
+            var client = new SmtpClient() { EnableSsl = true };
+            try
+            {
+                client.Send(message);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public bool SendEmail(string userEmail, string confirmationLink)
         {
             SmtpClient client = new SmtpClient("smtp.office365.com")
@@ -39,3 +71,4 @@ namespace BPMS_2.Utils
 
     }
 }
+

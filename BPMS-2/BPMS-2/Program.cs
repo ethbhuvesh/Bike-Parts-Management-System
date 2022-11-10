@@ -19,9 +19,27 @@ builder.Services.Configure<PasswordHasherOptions>(option =>
     option.IterationCount = 100000;
 });
 
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    // Cookie settings
+    //options.Cookie.Name = "session";
+    options.Cookie.HttpOnly = true;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+
+    //options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.SlidingExpiration = true;
+
+
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.ReturnUrlParameter = "/Account/Login";
+    options.SessionStore = new MemoryCacheStore();
+
+});
+
 var app = builder.Build();
-
-
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
