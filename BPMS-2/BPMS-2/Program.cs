@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using BPMS_2.Data;
 using Microsoft.AspNetCore.Identity;
 using BPMS_2.Utils;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<BPMS_2Context>(options =>
@@ -12,11 +14,19 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.Sign
         .AddDefaultTokenProviders()
         .AddPasswordValidator<CustomPasswordValidator<IdentityUser>>();
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options => { options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()); });
 builder.Services.AddSession();
 builder.Services.Configure<PasswordHasherOptions>(option =>
 {
     option.IterationCount = 100000;
+});
+
+builder.Services.AddAntiforgery(options =>
+{
+    // Set Cookie properties using CookieBuilder properties†.
+    options.FormFieldName = "AntiforgeryFieldname";
+    options.HeaderName = "X-CSRF-TOKEN-HEADERNAME";
+    options.SuppressXFrameOptionsHeader = false;
 });
 
 
@@ -54,6 +64,24 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
+var antiforgery = app.Services.GetRequiredService<IAntiforgery>();
+
+app.Use((context, next) =>
+{
+    var requestPath = context.Request.Path.Value;
+
+    if (string.Equals(requestPath, "/", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(requestPath, "/Index.html", StringComparison.OrdinalIgnoreCase))
+    {
+        var tokenSet = antiforgery.GetAndStoreTokens(context);
+        context.Response.Cookies.Append("XSRF-TOKEN", tokenSet.RequestToken!,
+            new CookieOptions { HttpOnly = false });
+    }
+
+    return next(context);
+});
+
 app.UseSession();
 
 app.MapControllerRoute(
