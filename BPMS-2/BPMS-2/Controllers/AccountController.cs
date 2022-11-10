@@ -46,6 +46,7 @@ namespace BPMS_2.Controllers
 
                 if (result.Succeeded)
                 {
+                    
                     var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
                     var confirmationLink = Url.Action("ConfirmEmail", "Email", new { token, email = user.Email }, Request.Scheme);
                     EmailSender emailSender = new EmailSender();
@@ -76,7 +77,10 @@ namespace BPMS_2.Controllers
                 {
                     return View("ConfirmRequired");
                 }
-                 //await signInManager.SignInAsync(user, isPersistent: false);
+                
+                   // await signInManager.SignInAsync(user, isPersistent: false);
+                    //return RedirectToAction("Index", "Home");
+                
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
@@ -123,7 +127,7 @@ namespace BPMS_2.Controllers
             if (ModelState.IsValid)
             {
 
-                var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                var result = await signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, false);
                 
                 if (result.Succeeded)
 
@@ -131,9 +135,12 @@ namespace BPMS_2.Controllers
                     return RedirectToAction("Index", "Home");
                 }
 
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
+                }
 
-
-                ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
+                
             }
 
             return View(model);
