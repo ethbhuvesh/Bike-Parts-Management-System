@@ -40,6 +40,12 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.ProductPrice)
         </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.RentalBikeImage)
+        </dt>
+        <dd class = "col-sm-10">
+            <img src="@Url.Content(Model.RentalBikeImage)" width="250" height="200" alt="Image"/>
+        </dd>
     </dl>
 </div>
 <div>

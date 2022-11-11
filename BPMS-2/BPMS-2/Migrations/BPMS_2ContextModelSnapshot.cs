@@ -48,11 +48,27 @@ namespace BPMS_2.Migrations
 
             modelBuilder.Entity("BPMS_2.Models.OrderDetailsModel", b =>
                 {
-                    b.Property<Guid>("ProductId")
+                    b.Property<int>("TableId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TableId"), 1L, 1);
+
+                    b.Property<string>("BikesPartsImage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("CartModelOrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ProductCategory")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("ProductPrice")
@@ -61,7 +77,17 @@ namespace BPMS_2.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.HasKey("ProductId");
+                    b.Property<DateTime>("ReturnDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Returned")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("TableId");
 
                     b.HasIndex("CartModelOrderId");
 
@@ -73,6 +99,10 @@ namespace BPMS_2.Migrations
                     b.Property<Guid>("ProductId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BikePartImage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("InventoryCount")
                         .HasColumnType("int");
@@ -118,6 +148,10 @@ namespace BPMS_2.Migrations
 
                     b.Property<int>("ProductSize")
                         .HasColumnType("int");
+
+                    b.Property<string>("RentalBikeImage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ProductId");
 

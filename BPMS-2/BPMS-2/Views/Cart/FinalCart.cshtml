@@ -15,38 +15,43 @@
             <h3>Cart Page</h3>
             <table cellpadding="2" cellspacing="2" border="1">
                 <tr>
-                    <th>Product ID</th>
+                    
                     <th>Product Price</th>
                     <th>Quantity</th>
                     <th>Total Price</th>
+                    <th>Product Picture</th>
                 </tr>
                
                 @foreach (var item in ViewBag.cart)
                 {
                     <tr>
-                    <form method="post" asp-action="Remove" asp-controller="Cart" asp-route-ProductId="@item.ProductId">
-                    <input type="submit" value="Remove from cart">
-                    </form>    
-                    <td>@item.ProductId</td>
-                        
+                      
+                    
+                        <td>
+                        <form method="post" asp-action="Remove" asp-controller="Cart" asp-route-ProductId="@item.ProductId">
+                        <input type="submit" value="Remove from cart">
+                        </form> 
+                        </td>
                         <td>@item.ProductPrice</td> 
                         <td>@item.Quantity</td>
                        <td>@item.TotalPrice</td>
+                       <td>
+                       <img src="@Url.Content(@item.BikesPartsImage)" width="250" height="200" alt="Image"/>
+                       </td>
                     </tr>
                    
                 }
-                <tr>
-                Total is @ViewBag.total
-                </tr>
-
-                
+               
             </table>
             <br>
+            <br><b><h3 align="right">Total is @ViewBag.total</h3></b>
           
 
     </body>
     </html>
 }
+<button><a asp-action="Index" asp-controller="Cart">Keep Shopping</a>
+</button>
+<button><a asp-action="Checkout" asp-controller="Checkout">Checkout</a>
+</button>
 
-<a asp-action="Index" asp-controller="Cart">Keep Shopping</a>
-<a asp-action="Checkout" asp-controller="Checkout">Checkout</a>

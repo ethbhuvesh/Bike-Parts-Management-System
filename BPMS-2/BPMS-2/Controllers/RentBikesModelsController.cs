@@ -14,10 +14,12 @@ namespace BPMS_2.Controllers
     public class RentBikesModelsController : Controller
     {
         private readonly BPMS_2Context _context;
+        private readonly ILogger<AccountController> _logger;
 
-        public RentBikesModelsController(BPMS_2Context context)
+        public RentBikesModelsController(BPMS_2Context context, ILogger<AccountController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: RentBikesModels
@@ -60,13 +62,15 @@ namespace BPMS_2.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("ProductId,ProductCategory,ProductDescription,ProductSize,InventoryCount,ProductPrice")] RentBikesModel rentBikesModel)
+        public async Task<IActionResult> Create([Bind("ProductId,ProductCategory,ProductDescription,ProductSize,InventoryCount,ProductPrice,RentalBikeImage")] RentBikesModel rentBikesModel)
         {
             if (ModelState.IsValid)
             {
                 rentBikesModel.ProductId = Guid.NewGuid();
                 _context.Add(rentBikesModel);
                 await _context.SaveChangesAsync();
+                string message = $"Inventory Item Added for Rent. Product ID - {rentBikesModel.ProductId}.";
+                _logger.LogInformation(message);
                 return RedirectToAction(nameof(Index));
             }
             return View(rentBikesModel);
@@ -95,7 +99,7 @@ namespace BPMS_2.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(Guid id, [Bind("ProductId,ProductCategory,ProductDescription,ProductSize,InventoryCount,ProductPrice")] RentBikesModel rentBikesModel)
+        public async Task<IActionResult> Edit(Guid id, [Bind("ProductId,ProductCategory,ProductDescription,ProductSize,InventoryCount,ProductPrice,RentalBikeImage")] RentBikesModel rentBikesModel)
         {
             if (id != rentBikesModel.ProductId)
             {
@@ -107,6 +111,8 @@ namespace BPMS_2.Controllers
                 try
                 {
                     _context.Update(rentBikesModel);
+                    string message = $"Product from Rental Bikes database updated. Product ID - {rentBikesModel.ProductId}.";
+                    _logger.LogInformation(message);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -158,6 +164,8 @@ namespace BPMS_2.Controllers
             if (rentBikesModel != null)
             {
                 _context.RentBikesModel.Remove(rentBikesModel);
+                string message = $"Product from Rental Bikes database deleted. Product ID - {rentBikesModel.ProductId}.";
+                _logger.LogInformation(message);
             }
             
             await _context.SaveChangesAsync();

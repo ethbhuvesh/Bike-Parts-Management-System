@@ -6,6 +6,10 @@ namespace BPMS_2.Models
     {
         [Key]
         public Guid ProductId { get; set; }
+
+        [DataType(DataType.ImageUrl)]
+        [Display(Name = "Bikes and Parts")]
+        public string BikePartImage { get; set; }
         public string ProductCategory { get; set; }
         public string ProductDescription { get; set; }
         public int ProductSize { get; set; }

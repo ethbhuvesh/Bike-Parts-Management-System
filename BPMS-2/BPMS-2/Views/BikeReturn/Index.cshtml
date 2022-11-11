@@ -1,0 +1,61 @@
+﻿
+@model IEnumerable<BPMS_2.Models.OrderDetailsModel>
+
+@{
+    ViewData["Title"] = "Bike Return";
+}
+<table class="table">
+    <thead>
+        <tr>
+
+            <th>
+                @Html.DisplayNameFor(model => model.UID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Returned)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductCategory)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BikesPartsImage)
+            </th>
+
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.UID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Returned)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProductPrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProductCategory)
+            </td>
+            <td>
+                <img src="@Url.Content(item.BikesPartsImage)" width="250" height="200" alt="Image"/>
+            </td>
+            <td>
+                <form method="post" asp-controller="BikeReturn" asp-action="Return" asp-route-productId="@item.ProductId">
+                <input type="submit" value="Return This Bike">
+                </form>
+            </td>
+        
+            
+        </tr>
+}
+    </tbody>
+</table>
+
+        
+    

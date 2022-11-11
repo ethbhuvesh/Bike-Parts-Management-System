@@ -6,6 +6,10 @@ namespace BPMS_2.Models
     {
         [Key]
         public Guid ProductId { get; set; }
+
+        [DataType(DataType.ImageUrl)]
+        [Display(Name = "Rental Bike")]
+        public string RentalBikeImage { get; set; }
         public string ProductCategory { get; set; }
         public string ProductDescription { get; set; }
         public int ProductSize { get; set; }
@@ -13,4 +17,4 @@ namespace BPMS_2.Models
         public decimal ProductPrice { get; set; }
 
     }
-}
+}  

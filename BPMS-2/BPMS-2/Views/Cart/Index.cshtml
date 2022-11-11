@@ -20,6 +20,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.ProductSize)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BikePartImage)
+            </th>
 
         </tr>
     </thead>
@@ -39,11 +42,17 @@
             <td>
                 @Html.DisplayFor(modelItem => item.ProductSize)
             </td>
-        <form method="post" asp-controller="Cart" asp-action="AddOrder" asp-route-productId="@item.ProductId">
-            <label for="quantity">Quantity:</label>
-            <input name="quantity" type="int" value="1">
-            <input type="submit" value="Add to cart">
-        </form>
+            <td>
+                <img src="@Url.Content(item.BikePartImage)" width="250" height="200" alt="Image"/>
+            </td>
+            <td>
+                <form method="post" asp-controller="Cart" asp-action="AddOrder" asp-route-productId="@item.ProductId">
+                <label for="quantity">Quantity:</label>
+                <input name="quantity" type="int" value="1">
+                <input type="submit" value="Add to cart">
+                </form>
+            </td>
+        
             
         </tr>
 }
