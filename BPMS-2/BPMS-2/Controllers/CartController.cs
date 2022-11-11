@@ -2,6 +2,7 @@
 using BPMS_2.Models;
 using LearnASPNETCoreMVCWithRealApps.Helpers;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,10 +11,12 @@ namespace BPMS_2.Controllers
     public class CartController : Controller
     {
 
+        private readonly UserManager<IdentityUser> _userManager;
         private readonly BPMS_2Context _context;
-        public CartController(BPMS_2Context context)
+        public CartController(BPMS_2Context context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()
@@ -43,6 +46,15 @@ namespace BPMS_2.Controllers
         }
 
 
+
+        public async Task<string> GetCurrentUserId()
+        {
+            IdentityUser usr = await GetCurrentUserAsync();
+            return usr?.UserName;
+        }
+
+        private Task<IdentityUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
+
         [Authorize]
         [HttpPost("{productId}")]
         public async Task<IActionResult> AddOrder(Guid productId, int quantity)
@@ -51,14 +63,20 @@ namespace BPMS_2.Controllers
             if (SessionHelper.GetObjectFromJson<List<OrderDetailsModel>>(HttpContext.Session, "cart") == null)
             {
                 List<OrderDetailsModel> cart = new List<OrderDetailsModel>();
-                if(quantity<product.InventoryCount)
+                if(quantity<=product.InventoryCount)
                 {
                     cart.Add(new OrderDetailsModel
                     {
 
                         Quantity = quantity,
                         ProductId = productId,
-                        ProductPrice = product.ProductPrice
+                        ProductPrice = product.ProductPrice,
+                        ProductCategory = product.ProductCategory,
+                        Returned = false,
+                        UID=await GetCurrentUserId(),
+                        BikesPartsImage=product.BikePartImage
+
+
                     });
                     product.InventoryCount -= quantity;
                     
@@ -78,7 +96,7 @@ namespace BPMS_2.Controllers
             {
                 List<OrderDetailsModel> cart = SessionHelper.GetObjectFromJson<List<OrderDetailsModel>>(HttpContext.Session, "cart");
                 int index = isExist(productId);
-                if (index != -1 && product.InventoryCount > quantity)
+                if (index != -1 && product.InventoryCount >= quantity)
                 {
                     cart[index].Quantity+=quantity;
                     product.InventoryCount -= quantity;
@@ -87,13 +105,18 @@ namespace BPMS_2.Controllers
                 }
                 else
                 {
-                    if(product.InventoryCount>quantity)
+                    if(product.InventoryCount>=quantity)
                     {
                         cart.Add(new OrderDetailsModel
                         {
                             Quantity = quantity,
                             ProductId = productId,
-                            ProductPrice = product.ProductPrice
+                            ProductPrice = product.ProductPrice,
+                            ProductCategory=product.ProductCategory,
+                            Returned=false,
+                            UID = await GetCurrentUserId(),
+                            BikesPartsImage = product.BikePartImage
+
                         });
                         product.InventoryCount -= quantity;
 

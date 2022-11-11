@@ -11,16 +11,17 @@ namespace BPMS_2.Controllers
     {
         private readonly BPMS_2Context _context;
         private readonly UserManager<IdentityUser> _userManager;
-
+        private readonly ILogger<AccountController> _logger;
 
 
         public CheckoutController(UserManager<IdentityUser> userManager,
-        BPMS_2Context context)
+        BPMS_2Context context,
+        ILogger<AccountController> logger)
         {
             _userManager = userManager;
-         
-            _context = context;
 
+            _context = context;
+            _logger = logger;
         }
 
 
@@ -54,13 +55,20 @@ namespace BPMS_2.Controllers
                 CartModel finalcart = new CartModel();
                 finalcart.UID = await GetCurrentUserId();
                 finalcart.OrderId = Guid.NewGuid();
-                finalcart.OrderDate = DateTime.UtcNow;
+                finalcart.OrderDate = cart[0].OrderDate;
                 finalcart.SubTotal = cart.Sum(item=>item.TotalPrice);
                 finalcart.ReturnDate = null;
+
+                finalcart.OrderDetails = cart;
+
                 _context.CartModel.Add(finalcart);
                 await _context.SaveChangesAsync();
-                
+                SessionHelper.SetObjectAsJson(HttpContext.Session, "cart", null);
+
             }
+            string message = $"Order placed by user {await GetCurrentUserId()}";
+            _logger.LogInformation(message);
+
             return RedirectToAction("Index");
             
         }

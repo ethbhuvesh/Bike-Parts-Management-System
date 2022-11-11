@@ -14,10 +14,12 @@ namespace BPMS_2.Controllers
     public class ProductsController : Controller
     {
         private readonly BPMS_2Context _context;
+        private readonly ILogger<AccountController> _logger;
 
-        public ProductsController(BPMS_2Context context)
+        public ProductsController(BPMS_2Context context, ILogger<AccountController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: Products
@@ -58,16 +60,19 @@ namespace BPMS_2.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("ProductId,ProductCategory,ProductDescription,ProductSize,InventoryCount,ProductPrice")] ProductsModel productsModel)
+        public async Task<IActionResult> Create([Bind("ProductId,ProductCategory,ProductDescription,ProductSize,InventoryCount,ProductPrice,BikePartImage")] ProductsModel productsModel)
         {
             if (ModelState.IsValid)
             {
                 productsModel.ProductId = Guid.NewGuid();
                 _context.Add(productsModel);
                 await _context.SaveChangesAsync();
+                string message = $"Product added in products database. Product ID - {productsModel.ProductId}.";
+                _logger.LogInformation(message);
                 return RedirectToAction(nameof(Index));
             }
             return View(productsModel);
+
         }
 
         // GET: Products/Edit/5
@@ -93,7 +98,7 @@ namespace BPMS_2.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(Guid id, [Bind("ProductId,ProductCategory,ProductDescription,ProductSize,InventoryCount,ProductPrice")] ProductsModel productsModel)
+        public async Task<IActionResult> Edit(Guid id, [Bind("ProductId,ProductCategory,ProductDescription,ProductSize,InventoryCount,ProductPrice,BikePartImage")] ProductsModel productsModel)
         {
             if (id != productsModel.ProductId)
             {
@@ -106,6 +111,8 @@ namespace BPMS_2.Controllers
                 {
                     _context.Update(productsModel);
                     await _context.SaveChangesAsync();
+                    string message = $"Products database updated. Product ID - {productsModel.ProductId}.";
+                    _logger.LogInformation(message);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -156,6 +163,8 @@ namespace BPMS_2.Controllers
             if (productsModel != null)
             {
                 _context.ProductsModel.Remove(productsModel);
+                string message = $"Product removed from products database. Product ID - {productsModel.ProductId}.";
+                _logger.LogInformation(message);
             }
             
             await _context.SaveChangesAsync();

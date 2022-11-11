@@ -4,6 +4,7 @@ using LearnASPNETCoreMVCWithRealApps.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 
 namespace BPMS_2.Controllers
@@ -12,10 +13,12 @@ namespace BPMS_2.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly BPMS_2Context _context;
-        public RentController(BPMS_2Context context, UserManager<IdentityUser> userManager)
+        private readonly ILogger<AccountController> _logger;
+        public RentController(BPMS_2Context context, UserManager<IdentityUser> userManager, ILogger<AccountController> logger)
         {
             _context = context;
             _userManager = userManager;
+            _logger = logger;
         }
 
 
@@ -56,63 +59,90 @@ namespace BPMS_2.Controllers
         [Authorize]
         public async Task<IActionResult> RentProduct(Guid productId, int quantity = 1)
         {
-            var product = GetProductById(productId);
-            if (SessionHelper.GetObjectFromJson<List<OrderDetailsModel>>(HttpContext.Session, "rentcart") == null)
+            var existingrents=from order in _context.OrderDetailsModel
+                              where order.Returned == false
+                              where order.ProductCategory == "Rent"
+                              select order;
+
+            if (existingrents.Any())
             {
-                List<OrderDetailsModel> rentcart = new List<OrderDetailsModel>();
-                if (quantity < product.InventoryCount)
-                {
-                    rentcart.Add(new OrderDetailsModel
-                    {
-                        Quantity = quantity,
-                        ProductId = productId,
-                        ProductPrice = product.ProductPrice
-                    });
-                    product.InventoryCount -= quantity;
-
-                    await _context.SaveChangesAsync();
-                    SessionHelper.SetObjectAsJson(HttpContext.Session, "rentcart", rentcart);
-                    return RedirectToAction("FinalCart");
-                }
-                else
-                {
-                    return View("Failure");
-                }
+                return View("NoRent", "Rent");
             }
-
             else
             {
-                List<OrderDetailsModel> cart = SessionHelper.GetObjectFromJson<List<OrderDetailsModel>>(HttpContext.Session, "rentcart");
-                int index = isExist(productId);
-
-                if (index != -1 && product.InventoryCount > quantity)
+                var product = GetProductById(productId);
+                if (SessionHelper.GetObjectFromJson<List<OrderDetailsModel>>(HttpContext.Session, "rentcart") == null)
                 {
-                    cart[index].Quantity += quantity;
-                    product.InventoryCount -= quantity;
-                    await _context.SaveChangesAsync();
-                }
-                
-                else
-                {
-                    if (product.InventoryCount > quantity)
+                    List<OrderDetailsModel> rentcart = new List<OrderDetailsModel>();
+                    if (quantity <= product.InventoryCount)
                     {
-                        cart.Add(new OrderDetailsModel
+
+                        rentcart.Add(new OrderDetailsModel
                         {
                             Quantity = quantity,
                             ProductId = productId,
-                            ProductPrice = product.ProductPrice
+                            ProductPrice = product.ProductPrice,
+                            ProductCategory = product.ProductCategory,
+                            Returned = false,
+                            OrderDate = DateTime.Now,
+                            ReturnDate = DateTime.Now.AddMonths(6),
+                            UID = await GetCurrentUserId(),
+                            BikesPartsImage=product.RentalBikeImage
                         });
                         product.InventoryCount -= quantity;
 
                         await _context.SaveChangesAsync();
+                        SessionHelper.SetObjectAsJson(HttpContext.Session, "rentcart", rentcart);
+                        return RedirectToAction("FinalCart");
+                    }
+                    else
+                    {
+                        return View("Failure");
+                    }
+                }
+
+                else
+                {
+                    List<OrderDetailsModel> cart = SessionHelper.GetObjectFromJson<List<OrderDetailsModel>>(HttpContext.Session, "rentcart");
+                    int index = isExist(productId);
+
+                    if (index != -1 && product.InventoryCount >= quantity)
+                    {
+                        cart[index].Quantity += quantity;
+                        product.InventoryCount -= quantity;
+                        await _context.SaveChangesAsync();
+                    }
+
+                    else
+                    {
+                        if (product.InventoryCount >= quantity)
+                        {
+                            cart.Add(new OrderDetailsModel
+                            {
+                                Quantity = quantity,
+                                ProductId = productId,
+                                ProductPrice = product.ProductPrice,
+                                ProductCategory = product.ProductCategory,
+                                OrderDate = DateTime.Now,
+                                ReturnDate = DateTime.Now.AddMonths(6),
+                                Returned = false,
+                                UID = await GetCurrentUserId(),
+                                BikesPartsImage = product.RentalBikeImage
+                            });
+                            product.InventoryCount -= quantity;
+
+                            await _context.SaveChangesAsync();
+
+                        }
 
                     }
 
+                    SessionHelper.SetObjectAsJson(HttpContext.Session, "rentcart", cart);
+                    return RedirectToAction("FinalCart");
                 }
 
-                SessionHelper.SetObjectAsJson(HttpContext.Session, "cart", cart);
-                return RedirectToAction("FinalCart");
             }
+            
             
         }
 
@@ -136,9 +166,13 @@ namespace BPMS_2.Controllers
                 finalcart.OrderDate = DateTime.UtcNow;
                 finalcart.SubTotal = rentcart.Sum(item => item.TotalPrice);
                 finalcart.ReturnDate = DateTime.Now.AddMonths(6);
+                finalcart.OrderDetails = rentcart;
+
                 _context.CartModel.Add(finalcart);
                 await _context.SaveChangesAsync();
-
+                SessionHelper.SetObjectAsJson(HttpContext.Session, "rentcart", null);
+                string message = $"Order placed for rent. Order ID - {finalcart.OrderId}.";
+                _logger.LogInformation(message);
             }
             return RedirectToAction("Success");
 

@@ -5,8 +5,20 @@ using Microsoft.AspNetCore.Identity;
 using BPMS_2.Utils;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddLogging(loggingBuilder => {
+    loggingBuilder.AddFile("logs\\app_{0:yyyy}-{0:MM}-{0:dd}.log", fileLoggerOpts =>
+    {
+        fileLoggerOpts.FormatLogFileName = fName =>
+        {
+            return String.Format(fName, DateTime.UtcNow);
+        };
+    });
+});
+
 builder.Services.AddDbContext<BPMS_2Context>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BPMS_2Context") ?? throw new InvalidOperationException("Connection string 'BPMS_2Context' not found.")));
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -29,6 +41,13 @@ builder.Services.AddAntiforgery(options =>
     options.SuppressXFrameOptionsHeader = false;
 });
 
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromHours(24);
+    
+});
 
 builder.Services.ConfigureApplicationCookie(options =>
 {

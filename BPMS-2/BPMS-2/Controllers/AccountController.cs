@@ -10,15 +10,20 @@ namespace BPMS_2.Controllers
 
         private readonly UserManager<IdentityUser> userManager;
         private readonly SignInManager<IdentityUser> signInManager;
+        private readonly ILogger<AccountController> _logger;
+       
 
         public AccountController(UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager,
+            ILogger<AccountController> logger)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+            _logger = logger;
+           
         }
 
-
+       
 
         [HttpGet]
         public IActionResult Register()
@@ -103,12 +108,21 @@ namespace BPMS_2.Controllers
         }
 
 
+        public async Task<string> GetCurrentUserId()
+        {
+            IdentityUser usr = await GetCurrentUserAsync();
+            return usr?.UserName;
+        }
+        private Task<IdentityUser> GetCurrentUserAsync() => userManager.GetUserAsync(HttpContext.User);
 
 
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
+
             await signInManager.SignOutAsync();
+            string message = $"Sign out by user {await GetCurrentUserId()}";
+            _logger.LogInformation(message);
             return RedirectToAction("Index", "Home");
         }
 
@@ -126,21 +140,34 @@ namespace BPMS_2.Controllers
         {
             if (ModelState.IsValid)
             {
+                string message = $"Sign in attempt by user {model.Username}";
+                _logger.LogInformation(message);
 
-                var result = await signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, false);
-                
+                var result = await signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, true);
+
                 if (result.Succeeded)
 
                 {
+                     message = $"Sign in successful by user {model.Username}.";
+                    _logger.LogInformation(message);
                     return RedirectToAction("Index", "Home");
                 }
-
+                if (result.IsLockedOut)
+                {
+                    message = $"The user {model.Username} account is locked.";
+                    _logger.LogWarning(message);
+                    return View("Lockout");
+                }
                 else
                 {
+                    
+                    message = $"Sign in unsuccessful by user {model.Username}.";
+                    _logger.LogInformation(message);
                     ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
-                }
 
-                
+                }
+            
+
             }
 
             return View(model);

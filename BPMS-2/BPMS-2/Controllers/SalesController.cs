@@ -11,6 +11,7 @@ namespace BPMS_2.Controllers
 
         private readonly BPMS_2Context _context;
         private readonly UserManager<IdentityUser> _userManager;
+        
         public SalesController(BPMS_2Context context, UserManager<IdentityUser> userManager)
         {
             _context = context;

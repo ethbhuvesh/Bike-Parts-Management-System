@@ -19,39 +19,55 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+                        <button class="pushable">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-
+                        </button>
+                        <button class="pushable">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Rent" asp-action="Index">Rent Bikes</a>
                         </li>
-
+                        </button>
+                        <button class="pushable">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Cart" asp-action="Index">Buy Parts and Bikes</a>
                         </li>
-
+                        </button>
+                        <button class="pushable">
                          <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Sales" asp-action="UserRecord">Order History</a>
                         </li>
+                        </button>
+                        <button class="pushable">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="BikeReturn" asp-action="Index">Return Bike</a>
+                        </li>
+                        </button>
 
                         @if(User.IsInRole("Admin"))
                         {
-                            <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Manage Products</a>
+                            
+                        <button class="pushable">
+                        <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Manage Products</a>
                         </li>
+                        </button>
+                            <button class="pushable">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="RentBikesModels" asp-action="Index">Manage Rental Bikes</a>
                         </li>
+                        </button>
+                        <button class="pushable">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Sales" asp-action="Index">Sales</a>
                         </li>
+                        </button>
   
                         }
                         
+                        
+
 
                         </div>
                         <partial name="_LoginPartial" />
