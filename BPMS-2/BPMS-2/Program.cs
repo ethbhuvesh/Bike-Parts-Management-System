@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddLogging(loggingBuilder => {
-    loggingBuilder.AddFile("logs\\app_{0:yyyy}-{0:MM}-{0:dd}.log", fileLoggerOpts =>
+    loggingBuilder.AddFile(Path.Combine("logs","app_{0:yyyy}-{0:MM}-{0:dd}.log"), fileLoggerOpts =>
     {
         fileLoggerOpts.FormatLogFileName = fName =>
         {
