@@ -160,21 +160,31 @@ namespace BPMS_2.Controllers
             else
             {
                 var rentcart = SessionHelper.GetObjectFromJson<List<OrderDetailsModel>>(HttpContext.Session, "rentcart");
-                CartModel finalcart = new CartModel();
-                finalcart.UID = await GetCurrentUserId();
-                finalcart.OrderId = Guid.NewGuid();
-                finalcart.OrderDate = DateTime.UtcNow;
-                finalcart.SubTotal = rentcart.Sum(item => item.TotalPrice);
-                finalcart.ReturnDate = DateTime.Now.AddMonths(6);
-                finalcart.OrderDetails = rentcart;
+                if(rentcart.Count==1 && rentcart[0].Quantity==1)
+                {
+                    CartModel finalcart = new CartModel();
+                    finalcart.UID = await GetCurrentUserId();
+                    finalcart.OrderId = Guid.NewGuid();
+                    finalcart.OrderDate = DateTime.UtcNow;
+                    finalcart.SubTotal = rentcart.Sum(item => item.TotalPrice);
+                    finalcart.ReturnDate = DateTime.Now.AddMonths(6);
+                    finalcart.OrderDetails = rentcart;
 
-                _context.CartModel.Add(finalcart);
-                await _context.SaveChangesAsync();
-                SessionHelper.SetObjectAsJson(HttpContext.Session, "rentcart", null);
-                string message = $"Order placed for rent. Order ID - {finalcart.OrderId}.";
-                _logger.LogInformation(message);
+                    _context.CartModel.Add(finalcart);
+                    await _context.SaveChangesAsync();
+                    SessionHelper.SetObjectAsJson(HttpContext.Session, "rentcart", null);
+                    string message = $"Order placed for rent. Order ID - {finalcart.OrderId}.";
+                    _logger.LogInformation(message);
+
+                    return RedirectToAction("Success");
+                }
+                else
+                {
+                    return View("NoRent");
+                }
+                
             }
-            return RedirectToAction("Success");
+            
 
         }
 
@@ -183,6 +193,8 @@ namespace BPMS_2.Controllers
         {
             return View();
         }
+
+      
 
 
         [HttpPost]

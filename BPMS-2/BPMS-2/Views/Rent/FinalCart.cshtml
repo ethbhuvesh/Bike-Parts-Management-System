@@ -25,11 +25,7 @@
                 @foreach (var item in ViewBag.rentcart)
                 {
                     <tr>
-                    <td>
-                    <form method="post" asp-action="Remove" asp-controller="Rent" asp-route-ProductId="@item.ProductId">
-                    <input type="submit" value="Remove from cart">
-                    </form>
-                    </td>
+                    
                     
 
                         
@@ -39,6 +35,11 @@
                        <td>
                        <img src="@Url.Content(@item.BikesPartsImage)" width="200" height="200" alt="Image"/>
                        </td>
+                       <td>
+                    <form method="post" asp-action="Remove" asp-controller="Rent" asp-route-ProductId="@item.ProductId">
+                    <input type="submit" value="Remove from cart">
+                    </form>
+                    </td>
                     </tr>
                    
                 }
