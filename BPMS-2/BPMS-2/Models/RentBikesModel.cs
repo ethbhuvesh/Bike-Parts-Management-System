@@ -10,7 +10,8 @@ namespace BPMS_2.Models
         [DataType(DataType.ImageUrl)]
         [Display(Name = "Rental Bike")]
         public string RentalBikeImage { get; set; }
-        public string ProductCategory { get; set; }
+
+        public string ProductCategory = "Rent";
         public string ProductDescription { get; set; }
         public int ProductSize { get; set; }
         public int InventoryCount { get; set; }
