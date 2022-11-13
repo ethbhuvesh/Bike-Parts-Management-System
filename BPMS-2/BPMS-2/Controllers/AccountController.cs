@@ -1,5 +1,6 @@
 ﻿using BPMS_2.Utils;
 using BPMS_2.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -163,6 +164,40 @@ namespace BPMS_2.Controllers
 
             return View(model);
         }
+
+
+
+
+        [HttpGet]
+		[Authorize]
+        public IActionResult ChangePassword() => View(new ChangePasswordViewModel());
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+		[Authorize]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await userManager.ChangePasswordAsync(await userManager.GetUserAsync(User), model.OldPassword, model.NewPassword);
+                if (result.Succeeded)
+                {
+                    _logger.LogWarning("Password changed by user {user} on {date}", await userManager.GetUserAsync(User), DateTime.UtcNow);
+                    return View("ChangePasswordSuccess");
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    _logger.LogWarning("Password change failed by user {user} on {date}", await userManager.GetUserAsync(User), DateTime.UtcNow);
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+
+            return View(model);
+        }
+
+
+
     }
 }
             
