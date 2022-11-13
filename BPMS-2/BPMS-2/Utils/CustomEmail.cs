@@ -17,9 +17,16 @@ namespace BPMS_2.Utils
 
         public override bool IsValid(object value)
         {
+            if(value!=null)
+            {
+                string[] strings = value.ToString().Split('@');
+                return strings[1].ToUpper() == _allowedDomain.ToUpper();
 
-            string[] strings = value.ToString().Split('@');
-            return strings[1].ToUpper() == _allowedDomain.ToUpper();
+            }
+            else
+            {
+                return false;
+            }
 
         }
 

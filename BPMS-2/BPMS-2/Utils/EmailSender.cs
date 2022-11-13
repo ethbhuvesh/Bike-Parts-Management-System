@@ -45,13 +45,13 @@ namespace BPMS_2
                 Port = 587,
                 EnableSsl = true,
                 UseDefaultCredentials = false,
-                Credentials = new System.Net.NetworkCredential("email", "pass", "outlook.com"),
+                Credentials = new System.Net.NetworkCredential("securecodingdifficult@outlook.com", "ABcd1234$$", "outlook.com"),
                 DeliveryMethod = SmtpDeliveryMethod.Network
             };
 
             MailMessage mailMessage = new MailMessage();
             mailMessage.To.Add(new MailAddress(userEmail));
-            mailMessage.From = new MailAddress("email");
+            mailMessage.From = new MailAddress("securecodingdifficult@outlook.com");
             mailMessage.Subject = "Confirm your email";
             mailMessage.Body = confirmationLink;
             mailMessage.IsBodyHtml = true;

@@ -62,42 +62,33 @@ namespace BPMS_2.Controllers
                         //_customerRepository.CreateCustomer(model.CompanyName, model.Username, model.Address, model.City, model.Region, model.PostalCode, model.Country);
 
                         //await _signInManager.SignInAsync(user, isPersistent: false);
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("ConfirmRequired");
                     }
                     else
                     {
                         System.Diagnostics.Debug.WriteLine("Email Failed");
                     }
+
+                    bool emailStatus = await userManager.IsEmailConfirmedAsync(user);
+
+                    if (emailStatus)
+                    {
+                        await signInManager.SignInAsync(user, isPersistent: false);
+                        return RedirectToAction("Index", "Home");
+
+                    }
+                    else
+                    {
+                        return View("ConfirmRequired");
+                    }
                 }
 
-                bool emailStatus = await userManager.IsEmailConfirmedAsync(user);
-
-                if (emailStatus)
-                {
-                    await signInManager.SignInAsync(user, isPersistent: false);
-                    //return RedirectToAction("Index", "Home");
-
-                }
-                else
-                {
-                    return View("ConfirmRequired");
-                }
-                
-                   // await signInManager.SignInAsync(user, isPersistent: false);
-                    //return RedirectToAction("Index", "Home");
-                
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
-
-                // If there are any errors, add them to the ModelState object
-                // which will be displayed by the validation summary tag helper
-
             }
-
             return View(model);
-
         }
 
 
