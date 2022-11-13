@@ -27,17 +27,19 @@
                     <tr>
                       
                     
-                        <td>
-                        <form method="post" asp-action="Remove" asp-controller="Cart" asp-route-ProductId="@item.ProductId">
-                        <input type="submit" value="Remove from cart">
-                        </form> 
-                        </td>
+                        
                         <td>@item.ProductPrice</td> 
                         <td>@item.Quantity</td>
                        <td>@item.TotalPrice</td>
                        <td>
                        <img src="@Url.Content(@item.BikesPartsImage)" width="250" height="200" alt="Image"/>
                        </td>
+                       <td>
+                        <form method="post" asp-action="Remove" asp-controller="Cart" asp-route-ProductId="@item.ProductId">
+                        <input type="submit" value="Remove from cart">
+                        </form> 
+                       </td>
+                      
                     </tr>
                    
                 }

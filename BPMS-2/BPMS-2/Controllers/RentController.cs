@@ -187,11 +187,15 @@ namespace BPMS_2.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult Remove(Guid productId)
+        public async Task<IActionResult> Remove(Guid productId)
         {
             List<OrderDetailsModel> rentcart = SessionHelper.GetObjectFromJson<List<OrderDetailsModel>>(HttpContext.Session, "rentcart");
             int index = isExist(productId);
+            var product = GetProductById(productId);
+            product.InventoryCount += rentcart[index].Quantity;
             rentcart.RemoveAt(index);
+            await _context.SaveChangesAsync();
+            
             SessionHelper.SetObjectAsJson(HttpContext.Session, "rentcart", rentcart);
             return RedirectToAction("FinalCart");
         }
