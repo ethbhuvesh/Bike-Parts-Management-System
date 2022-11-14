@@ -180,6 +180,13 @@ namespace BPMS_2.Controllers
                 }
                 else
                 {
+                    for(int i=0; i<rentcart.Count; i++)
+					{
+                        var product = GetProductById(rentcart[i].ProductId);
+                        product.InventoryCount += rentcart[i].Quantity;
+                        await _context.SaveChangesAsync();
+                    }
+                    SessionHelper.SetObjectAsJson(HttpContext.Session, "rentcart", null);
                     return View("NoRent");
                 }
                 
