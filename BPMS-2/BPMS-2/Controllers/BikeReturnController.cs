@@ -1,11 +1,13 @@
 ﻿using BPMS_2.Data;
 using BPMS_2.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace BPMS_2.Controllers
 {
+	[Authorize]
     public class BikeReturnController : Controller
     {
 
